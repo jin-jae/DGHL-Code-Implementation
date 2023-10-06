@@ -1,12 +1,3 @@
-conda create --name dghl_mad python=3.7.2
-conda activate dghl_mad
+docker build . -t dghl_docker
 
-conda install -c anaconda numpy
-conda install -c anaconda pandas
-conda install -c conda-forge matplotlib
-conda install -c anaconda scikit-learn
-conda install pytorch torchvision torchaudio -c pytorch
-
-# M5
-conda deactivate
-
+docker run -it --gpus all --network host dghl_docker
