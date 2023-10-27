@@ -27,6 +27,7 @@ from utils.utils import de_unfold
 from utils.utils_visualization import plot_reconstruction_ts, plot_anomaly_scores
 
 
+# 학습 진행
 def train_DGHL(mc, train_data, test_data, test_labels, train_mask, test_mask, entities, make_plots, root_dir):
     """
     train_data:
@@ -43,6 +44,7 @@ def train_DGHL(mc, train_data, test_data, test_labels, train_mask, test_mask, en
         List of names with entities
     """
 
+    # 파라미터 출력
     print(pd.Series(mc))
     # --------------------------------------- Random seed --------------------------------------
     np.random.seed(mc['random_seed'])
@@ -307,9 +309,10 @@ def train_DGHL_encoder(mc, train_data, test_data, test_labels, train_mask, test_
 
         if make_plots:
             filename = f'{rootdir_entity}/reconstruction_test.png'
+            # reconstruction_test.png 시각화 및 시각화 결과 파일 저장
             plot_reconstruction_ts(x=x_test_true, x_hat=x_test_hat, n_features=n_features, filename=filename)
 
-        # Plot scores
+        # anomaly_scores 시각화
         if make_plots:
             filename = f'{rootdir_entity}/anomaly_scores.png'
             plot_anomaly_scores(score=score, labels=test_labels[entity], filename=filename)
