@@ -14,10 +14,12 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
   limitations under the License.
 """
 
+# 시각화 코드
 import matplotlib.pyplot as plt
 
 
 def plot_reconstruction_ts(x, x_hat, n_features, filename):
+    # feature 개수만큼 subplots 생성하기
     if n_features>1:
         fig, ax = plt.subplots(n_features, 1, figsize=(15, n_features))
         for i in range(n_features):
@@ -30,6 +32,7 @@ def plot_reconstruction_ts(x, x_hat, n_features, filename):
         plt.plot(x_hat[0])
         plt.grid()
         
+    # 파일 저장하기
     if filename is not None:
         plt.savefig(filename)
     else:
@@ -37,6 +40,7 @@ def plot_reconstruction_ts(x, x_hat, n_features, filename):
     plt.close('all')
 
 def plot_reconstruction_prob_ts(x, x_mu, x_sigma, n_features, filename):
+    # feature 개수만큼 subplots 생성하기
     fig, ax = plt.subplots(n_features, 1, figsize=(15, n_features))
     for i in range(n_features):
         ax[i].plot(x[i])
@@ -49,6 +53,7 @@ def plot_reconstruction_prob_ts(x, x_mu, x_sigma, n_features, filename):
         plt.show()
     plt.close('all')
 
+# anomaly scores 그래프 생성
 def plot_anomaly_scores(score, labels, filename):
     fig, ax = plt.subplots(2, 1, figsize=(15,10))
     ax[0].plot(score, label='anomaly score')
