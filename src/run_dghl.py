@@ -65,22 +65,19 @@ def basic_mc(dataset, random_seed):
 def run_smd(args):
     mc = basic_mc(dataset='SMD', random_seed=args.random_seed)
 
-    # LOOP MACHINES
-    files = sorted(glob.glob('./data/ServerMachineDataset/train/*.txt'))
-    for file in files:
-        machine = file[:-4].split('/')[-1]
-        print(50*'-', machine, 50*'-')
+    machine = args.dataset
+    print(50*'-', machine, 50*'-')
 
-        root_dir = f'./results/{args.experiment_name}_{args.random_seed}/SMD'
-        os.makedirs(name=root_dir, exist_ok=True)
+    root_dir = f'./DGHL/results/{args.experiment_name}_{args.random_seed}/SMD'
+    os.makedirs(name=root_dir, exist_ok=True)
 
-        train_data, train_mask, test_data, test_mask, labels = load_smd(entities=machine, downsampling_size=10,
-                                                                        occlusion_intervals=args.occlusion_intervals,
-                                                                        occlusion_prob=args.occlusion_prob,
-                                                                        root_dir='./data', verbose=True)
-        
-        train_DGHL(mc=mc, train_data=train_data, test_data=test_data, test_labels=labels,
-                   train_mask=train_mask, test_mask=test_mask, entities=[machine], make_plots=True, root_dir=root_dir)
+    train_data, train_mask, test_data, test_mask, labels = load_smd(entities=machine, downsampling_size=10,
+                                                                    occlusion_intervals=args.occlusion_intervals,
+                                                                    occlusion_prob=args.occlusion_prob,
+                                                                    root_dir='./DGHL/data', verbose=True)
+    
+    train_DGHL(mc=mc, train_data=train_data, test_data=test_data, test_labels=labels,
+                train_mask=train_mask, test_mask=test_mask, entities=[machine], make_plots=True, root_dir=root_dir)
 
 def run_smap(args):
     mc = basic_mc(dataset='SMAP', random_seed=args.random_seed)
@@ -142,28 +139,29 @@ def main(args):
     print(105*'-')
     run_smd(args)
 
-    print(106*'-')
-    print(50*'-',' SMAP ', 50*'-')
-    print(106*'-')
-    run_smap(args)
+    # print(106*'-')
+    # print(50*'-',' SMAP ', 50*'-')
+    # print(106*'-')
+    # run_smap(args)
 
-    print(105*'-')
-    print(50*'-',' MSL ', 50*'-')
-    print(105*'-')
-    run_msl(args)
+    # print(105*'-')
+    # print(50*'-',' MSL ', 50*'-')
+    # print(105*'-')
+    # run_msl(args)
 
-    print(105*'-')
-    print(50*'-',' SWAT ', 50*'-')
-    print(105*'-')
-    run_swat(args)
+    # print(105*'-')
+    # print(50*'-',' SWAT ', 50*'-')
+    # print(105*'-')
+    # run_swat(args)
 
 def parse_args():
     desc = "Run DGHL in benchmark datasets"
     parser = argparse.ArgumentParser(description=desc)
-    parser.add_argument('--random_seed', type=int, required=True)
-    parser.add_argument('--occlusion_intervals', type=int, required=True)
-    parser.add_argument('--occlusion_prob', type=float, required=True)
-    parser.add_argument('--experiment_name', type=str, required=True)
+    parser.add_argument('--dataset', type=str, required=True)
+    parser.add_argument('--random_seed', type=int, default=1)
+    parser.add_argument('--occlusion_intervals', type=int, default=1)
+    parser.add_argument('--occlusion_prob', type=float, default=0.0)
+    parser.add_argument('--experiment_name', type=str, default="DGHL")
     return parser.parse_args()
 
 if __name__ == '__main__':
@@ -171,7 +169,8 @@ if __name__ == '__main__':
     if args is None:
         exit()
     
-    main(args)
+    if args.dataset.startswith("machine"):
+        main(args)
 
 # source ~/anaconda3/etc/profile.d/conda.sh
 # CUDA_VISIBLE_DEVICES=2 python src/run_dghl.py --random_seed 1 --occlusion_intervals 1 --occlusion_prob 0 --experiment_name 'DGHL'
