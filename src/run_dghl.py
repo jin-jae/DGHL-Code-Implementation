@@ -17,6 +17,7 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 import os
 import argparse
 import glob
+from natsort import natsorted
 import pandas as pd
 
 from utils.utils_data import load_smd, load_nasa, load_swat
@@ -71,13 +72,20 @@ def run_smd(args):
     root_dir = f'./DGHL/results/{args.experiment_name}_{args.random_seed}/SMD'
     os.makedirs(name=root_dir, exist_ok=True)
 
-    train_data, train_mask, test_data, test_mask, labels = load_smd(entities=machine, downsampling_size=10,
-                                                                    occlusion_intervals=args.occlusion_intervals,
-                                                                    occlusion_prob=args.occlusion_prob,
-                                                                    root_dir='./DGHL/data', verbose=True)
-    
-    train_DGHL(mc=mc, train_data=train_data, test_data=test_data, test_labels=labels,
-                train_mask=train_mask, test_mask=test_mask, entities=[machine], make_plots=True, root_dir=root_dir)
+    def _run_smd(_mc):
+        train_data, train_mask, test_data, test_mask, labels = load_smd(entities=_mc, downsampling_size=10,
+                                                                            occlusion_intervals=args.occlusion_intervals,
+                                                                            occlusion_prob=args.occlusion_prob,
+                                                                            root_dir='./data', verbose=True)
+            
+        train_DGHL(mc=mc, train_data=train_data, test_data=test_data, test_labels=labels,
+            train_mask=train_mask, test_mask=test_mask, entities=[machine], make_plots=True, root_dir=root_dir)
+
+    if type(machine) == type(list()):
+        for mach in machine:
+            _run_smd(mach)
+    else:
+        _run_smd(machine)
 
 def run_smap(args):
     mc = basic_mc(dataset='SMAP', random_seed=args.random_seed)
@@ -155,9 +163,14 @@ def main(args):
     # run_swat(args)
 
 def parse_args():
+    def check_prefix(value):
+        if not (value.startswith('machine-') or value == "SMD"):
+            raise argparse.ArgumentTypeError(f"{value} is not a valid dataset name.")
+        return value
+
     desc = "Run DGHL in benchmark datasets"
     parser = argparse.ArgumentParser(description=desc)
-    parser.add_argument('--dataset', type=str, required=True)
+    parser.add_argument('--dataset', type=check_prefix, required=True)
     parser.add_argument('--random_seed', type=int, default=1)
     parser.add_argument('--occlusion_intervals', type=int, default=1)
     parser.add_argument('--occlusion_prob', type=float, default=0.0)
@@ -169,7 +182,13 @@ if __name__ == '__main__':
     if args is None:
         exit()
     
-    if args.dataset.startswith("machine"):
+    if args.dataset == "SMD":
+        dataset_path = './data/ServerMachineDataset/train'
+        args.dataset = [f.replace(".txt", "") for f in os.listdir(dataset_path) if os.path.isfile(os.path.join(dataset_path, f)) and f.startswith('machine-')]
+        args.dataset = natsorted(args.dataset)
+        print("Dataset: ", args.dataset)
+        main(args)
+    elif args.dataset.startswith("machine"):
         main(args)
 
 # source ~/anaconda3/etc/profile.d/conda.sh
